@@ -43,7 +43,7 @@ const APP = {
 
             cache.keys().then((keys) => {
                 keys.forEach((key, index) => {
-                    console.log(index, key)
+                    // console.log(index, key)
                 })
             })
             return cache;
@@ -53,32 +53,61 @@ const APP = {
             })
 
 
-            let url = 'img/place.jpg?id=one';
+            let url = 'img/img2.jpg';
             return caches.match(url).then((cacheResponse) => {
                 if (cacheResponse && cacheResponse.status < 400 && cacheResponse.headers.has('content-type') && cacheResponse.headers.get('content-type') === 'image/jpeg') {
                     //not an error if not found
                     console.log("Found !")
-                    console.log(cacheResponse)
+                    // console.log(cacheResponse)
                     return cacheResponse;
                 }else {
+                    console.log('Not found !')
+                    return fetch(url).then(resposta =>{
+                        if(!resposta.ok) throw resposta.statusText;
 
+                        cache.put(url, resposta.clone());
+                        return resposta;
+                    })
                 }
             });
+        }).then(cacheResponse => {
+            console.log('cacheResponse',cacheResponse)
+            document.querySelector('output').textContent = cacheResponse.url;
+            return cacheResponse.blob()
+        }).then(blob => {
+            // console.log('blob',blob)
+            let url = URL.createObjectURL(blob);
+            let img = document.createElement('img') ;
+            let img1 = document.createElement('img') ;
+            img.src = url;
+            img1.src = url;
+            // console.log(img)
+            document.querySelector('output').append(img);
+            document.querySelector('output').append(img1);
         });
     },
     deleteCache() {
         //click the h2 to delete our cache OR something in a cache
         //delete a response from the cache
-        // caches.open(APP.cacheName).then((cache) => {
-        //   let url = '/img/1011-800x600.jpg?id=two';
-        //   cache.delete(url).then((isGone) => {
-        //     console.log(isGone);
-        //   });
-        // });
+        // window.alert('Is this working ?');
+
+        // caches.open(APP.cacheName).then(cache => {
+        //     let url = 'img/place.jpg?id=one';
+        //
+        //     cache.delete(url).then(isGone => {
+        //         console.log(`O ${url} se foi? ${isGone}`);
+        //     })
+        //     cache.keys().then((keys) => {
+        //         keys.forEach((key, index) => {
+        //             console.log(index, key)
+        //         })
+        //     })
+        // })
+
         //delete an entire cache
-        // caches.delete(APP.cacheName).then((isGone) => {
-        //     console.log(isGone);
-        // });
+        caches.delete(APP.cacheName).then((isGone) => {
+            console.log(isGone);
+        });
     },
 };
 
